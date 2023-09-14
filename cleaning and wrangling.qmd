@@ -1,0 +1,144 @@
+---
+title: "Data cleaning and wrangling"
+format: html
+---
+# Setup
+
+```{r load libraries}
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+
+# Data Sources
+
+## Read data
+
+```{r}
+catch_original <-read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+```
+
+## Explore Data
+```{r}
+#| eval: false
+#| echo: false
+colnames(catch_original)
+head(catch_original)
+summary(catch_original)
+unique(catch_original$notesRegCode)
+```
+
+# Clean and Reshape data
+
+### notes on %>%
+tidyr and dplyr. clean and easy to look at
+```{r}
+catch_selected <-catch_original %>%
+  filter(Year>1900) %>%
+  select(Year)
+head(catch_selected)
+
+```
+
+## Select function
+```{r}
+catch_data<-catch_original %>%
+  select(Region,Year,Chinook)
+
+## for having more columns we want to keep than not keep
+
+catch_data<-catch_original %>% 
+  select(-All,-notesRegCode)
+```
+
+
+## Check column types
+```{r}
+catch_clean<- catch_data %>%
+  mutate(Chinook = as.numeric(Chinook))
+
+i<-which(is.na(catch_clean$Chinook))
+i
+catch_data[i,] #[x,y] x=rows, y=cols
+
+# Replace i with 1.
+
+catch_clean <-catch_data %>%
+  mutate(Chinook = if_else(condition = Chinook == "I",
+                           true ="",
+                           false=Chinook),
+         Chinook=as.numeric(Chinook))
+#catch_clean[i,]
+
+catch_long<-catch_clean %>%
+  pivot_longer(
+    cols = -c(Region,Year),
+    names_to="species",
+    values_to = "catch"
+  )
+```
+
+## Rename
+```{r}
+#using metadata to fix numeric values
+catch_long<-catch_long %>% 
+  rename(catch_thousands =catch) %>% 
+  mutate(catch_thousands = catch_thousands *1000)
+```
+
+## Summary stats
+
+```{r}
+#split apply combine strategy
+mean_region<-catch_long %>% 
+  group_by(Region) %>% 
+  summarize(mean_catch = mean(catch_thousands))
+
+
+count_region<- catch_long %>% 
+  group_by(Region) %>% 
+  summarise(count = n())
+```
+
+## Filtering rows using filter
+```{r}
+sse_catch <-catch_long %>% 
+  filter(Region == "SSE")
+```
+
+## Sort data with arrange
+
+```{r}
+mean_region <-mean_region %>% 
+  filter(Region %in% c("ALU","BER","BRB"))
+  arrange(desc(mean_catch)) #%>% 
+    #arrange(Region, c("ALU", "BRB","BER"))
+
+```
+
+
+## Split valuesin columns using seperate and unite
+
+```{r}
+sites_df<-data.frame(sites=c("HAW-101","HAW-103","OAH-320","OAH-219","MAU-039"))
+
+sites_df %>% 
+  tidyr::separate(sites,c("island","site_number"),
+           sep="-")
+
+dates_df<-data.frame(
+  year=c("1930","1930","1930"),
+  month=c("12","12","12"),
+  day=c("14","15","20"))
+
+dates_df %>% 
+  unite(date, year,month,day,sep="-")
+```
+
+
+
+
+
+
+
+

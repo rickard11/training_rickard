@@ -1,0 +1,57 @@
+---
+title: "mini Literate Analysis"
+format: html
+---
+
+## Introduction 
+This data set contains data from the arctic center. [Arctic data link](https://arcticdata.io/catalog/view/doi:10.18739/A25T3FZ8X)
+### About this data
+
+### Setup
+```{r}
+library(readr)
+```
+
+### Read in data
+
+```{r}
+#| warning: FALSE
+bg_chem<-read_csv("data/BGchem2008data.csv")
+```
+
+- Exploring my data
+
+```{r}
+#| echo: false
+#| eval: false
+colnames(bg_chem)
+str(bg_chem)
+unique(bg_chem$Date)
+```
+
+## Analysis
+### Calculate Summary Statistics
+```{r}
+nitrate<-mean(bg_chem$NO3)
+nitrite<-mean(bg_chem$NO2)
+ammonium<-mean(bg_chem$NH4)
+phosphorus<-mean(bg_chem$P)
+```
+
+
+###  Calculate the Redfield Ratio
+```{r}
+ratio<- (nitrate +nitrite + ammonium)/phosphorus
+```
+
+### Plot Redfield Ratio
+```{r}
+#| echo: false
+plot(bg_chem$P, bg_chem$NO3+bg_chem$NO2+bg_chem$NH4)
+```
+
+
+## Conclusion
+
+The redfield ratio for this data set is approximately `r round(ratio)`
+

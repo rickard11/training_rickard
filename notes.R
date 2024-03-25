@@ -32,7 +32,8 @@
 #####################
 #Git
 #git merge brings data down to your working file, git fetch makes it so you can see the data, but not merge with your working file
-
+#usethis::git()- this function takes a non git file to a git functioning file.
+#usethis::github()
 
 
 

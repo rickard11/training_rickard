@@ -12,11 +12,7 @@ chem<-read.csv("data/BGchem2008data.csv")
 
 # run these in console str(chem), View(chem)
 
-
-
-
-
-
+# now integrated with git. Need to pull first
 
 
 
